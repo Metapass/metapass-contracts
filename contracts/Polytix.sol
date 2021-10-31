@@ -14,14 +14,14 @@ contract Polytix is ERC721URIStorage, Ownable {
     bool private isMinting = false;
     mapping(address => uint256) owners;
     
-    constructor() ERC721("NFTix", "TIX") {}
+    constructor() ERC721("Metapass", "MPA") {}
 
     function getTix (address eventOwner, string memory tokenMetadata) payable public {
         require(isMinting == true, "Service not running");
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
         _tokenIdCounter.increment();
-        owners[eventOwner] = msg.value;
+        owners[eventOwner] += msg.value;
     }
     
     function _toggleMinting() onlyOwner public {
@@ -34,7 +34,7 @@ contract Polytix is ERC721URIStorage, Ownable {
     
     function widthdraw() public {
         uint256 amount = owners[msg.sender];
-        payable(msg.sender).send(amount);
+        payable(msg.sender).transfer(amount);
         owners[msg.sender] = 0;
     }
 
