@@ -13,10 +13,20 @@ contract Metapass is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     uint256 public cutNumerator = 10;
     uint256 public cutDenominator = 100;
-
     Counters.Counter private _tokenIdCounter;
+    
+    struct EventData {
+        string encryptedLink;
+        string title;
+    }
+    
     bool private isMinting = false;
     mapping(address => uint256) balances;
+    mapping(address => EventData[]) detailsMap; 
+    
+    event Minted (
+        uint256 indexed _id
+    );
     
     constructor() ERC721("Metapass", "MPA") {}
 
@@ -27,14 +37,24 @@ contract Metapass is ERC721URIStorage, Ownable {
     }
   
 
-    function getTix (address eventOwner, string memory tokenMetadata) payable public {
+    function getTix (address eventOwner, string memory tokenMetadata, string memory _link, string memory _title) payable public {
         require(isMinting == true, "Service not running");
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
+        emit Minted (_tokenIdCounter.current());
         _tokenIdCounter.increment();
-        uint256 cut = msg.value * cutNumerator / cutDenominator; 
+        uint256 cut = msg.value * cutNumerator / cutDenominator;
+        EventData memory _tempEventData = EventData(
+            _link,
+            _title
+        );
+        detailsMap[msg.sender].push(_tempEventData);
         balances[eventOwner] += msg.value - cut;
         balances[owner()] += cut;
+    }
+    
+    function getEventDetails() public view returns (EventData[]  memory _EventData) {
+        return detailsMap[msg.sender];
     }
     
     function _toggleMinting() onlyOwner public {
