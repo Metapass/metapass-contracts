@@ -6,12 +6,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./MetaStorage.sol";
+
 
 contract Metapass is ERC721URIStorage, Ownable {
-    
-    MetaStorage _storage = MetaStorage(0xbFD3222A4B7A7ac9695f74D87f99f3D46642fe06); 
-    
+        
     using Counters for Counters.Counter;
     uint256 public cutNumerator = 0;
     uint256 public cutDenominator = 100;
@@ -39,13 +37,12 @@ contract Metapass is ERC721URIStorage, Ownable {
     }
   
 
-    function getTix (address eventOwner, string memory tokenMetadata, string memory _link, string memory _title, uint256 _id) payable public {
+    function getTix (address eventOwner, string memory tokenMetadata, string memory _link, string memory _title) payable public returns (uint256) {
         require(isMinting == true, "Service not running");
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
-        emit Minted (_tokenIdCounter.current());
+        uint256 returnId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _storage.incrementTicketCount(eventOwner, _id);
         uint256 cut = msg.value * cutNumerator / cutDenominator;
         EventData memory _tempEventData = EventData(
             _link,
@@ -54,6 +51,7 @@ contract Metapass is ERC721URIStorage, Ownable {
         detailsMap[msg.sender].push(_tempEventData);
         balances[eventOwner] += msg.value - cut;
         balances[owner()] += cut;
+        return returnId;
     }
     
     function getEventDetails() public view returns (EventData[]  memory _EventData) {
