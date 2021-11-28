@@ -53,6 +53,10 @@ contract Metapass is ERC721URIStorage, Ownable {
         balances[owner()] += cut;
         return returnId;
     }
+
+    function getLastTokenId() public view returns(uint256) {
+        return _tokenIdCounter.current() - 1;
+    }
     
     function getEventDetails() public view returns (EventData[]  memory _EventData) {
         return detailsMap[msg.sender];
