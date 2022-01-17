@@ -1,5 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
-
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -76,4 +75,25 @@ contract Metapass is ERC721URIStorage, Ownable {
         balances[msg.sender] = 0;
     }
 
+}
+contract MetapassFactory {
+    mapping(address => Metapass) public contracts;
+
+    function create() public {
+        Metapass metapass = new Metapass();
+        contracts[msg.sender] = metapass;
+    }
+
+    function getContract()
+        public
+        view
+        returns (
+            address
+        )
+    {
+        Metapass metapass = contracts[msg.sender];
+        return (  
+            address(metapass)
+        );
+    }
 }
