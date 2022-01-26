@@ -19,7 +19,7 @@ contract Metapass is ERC721URIStorage, Ownable {
 
     constructor(uint256 _cutNum, uint256 _cutDen, address _owner, uint256 _cost) ERC721("MetapassTickets", "METAPASS") {
         cutNumerator = _cutNum;
-        cutDenominator = _cutNum;
+        cutDenominator = _cutDen;
         cost = _cost;
         eventHost = _owner;
     }
