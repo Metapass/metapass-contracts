@@ -7,73 +7,34 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-
 contract Metapass is ERC721URIStorage, Ownable {
         
     using Counters for Counters.Counter;
     uint256 public cutNumerator = 0;
     uint256 public cutDenominator = 100;
     Counters.Counter private _tokenIdCounter;
-    
-    struct EventData {
-        string encryptedLink;
-        string title;
-    }
-    
-    bool private isMinting = false;
-    mapping(address => uint256) balances;
-    mapping(address => EventData[]) detailsMap; 
-    
-    event Minted (
-        uint256 indexed _id
-    );
-    
-    constructor() ERC721("Metapass", "MPA") {}
+        
+    address public eventHost;
+    uint256 cost;
 
-  
-    function updateCut(uint256 numerator, uint256 denominator) onlyOwner public {
-        cutNumerator = numerator;
-        cutDenominator = denominator;
+    constructor(uint256 _cutNum, uint256 _cutDen, address _owner, uint256 _cost) ERC721("MetapassTickets", "METAPASS") {
+        cutNumerator = _cutNum;
+        cutDenominator = _cutNum;
+        cost = _cost;
+        eventHost = _owner;
     }
-  
 
-    function getTix (address eventOwner, string memory tokenMetadata, string memory _link, string memory _title) payable public returns (uint256) {
-        require(isMinting == true, "Service not running");
+    function getTix (string memory tokenMetadata) payable public {
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
-        uint256 returnId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         uint256 cut = msg.value * cutNumerator / cutDenominator;
-        EventData memory _tempEventData = EventData(
-            _link,
-            _title
-        );
-        detailsMap[msg.sender].push(_tempEventData);
-        balances[eventOwner] += msg.value - cut;
-        balances[owner()] += cut;
-        return returnId;
+        payable(eventHost).transfer(msg.value - cut);
+        payable(owner()).transfer(cut);
     }
 
     function getLastTokenId() public view returns(uint256) {
         return _tokenIdCounter.current() - 1;
     }
     
-    function getEventDetails() public view returns (EventData[]  memory _EventData) {
-        return detailsMap[msg.sender];
-    }
-    
-    function _toggleMinting() onlyOwner public {
-        isMinting = !isMinting;
-    }
-    
-    function _claims() public view returns (uint256) {
-        return balances[msg.sender];
-    }
-    
-    function widthdraw() public {
-        uint256 amount = balances[msg.sender];
-        payable(msg.sender).transfer(amount);
-        balances[msg.sender] = 0;
-    }
-
 }

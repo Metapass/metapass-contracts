@@ -3,53 +3,38 @@ pragma solidity >=0.7.0 <0.9.0;
 
 
 contract MetaStorage {
-
-    struct Event {
+    
+    struct EventData {
         string title;
-        uint256 price;
-        string description;
         string image;
+        string link;
+        uint256 fee;
         uint256 seats;
-        uint256 occupiedSeats;
-        string manualLink;
+        string date;
+        address childContract;
+        string description;
+        address eventHost;
     }
+
+    mapping(address => EventData[]) detailsMap; 
     
-    mapping(address => Event[]) addressEventMap;
-    
-    event eventCreation (address indexed _owner, uint256 indexed _id);
-    
-    function createEvent(string calldata _title, uint256 _price, string calldata _description, string calldata _image, uint256 _seats, uint256 _occupiedSeats, string memory _link) public{
-       
-       Event memory _event = Event(
-            _title,
-            _price,
-            _description,
-            _image,
-            _seats,
-            _occupiedSeats,
-            _link
+    function getEventDetails() public view returns (EventData[]  memory _EventData) {
+        return detailsMap[msg.sender];
+    }
+
+    function pushEventDetails(string memory title, uint256 fee, uint256 seats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date, address child) public {
+        EventData memory _tempEventData = EventData(
+            title,
+            image,
+            link,
+            fee,
+            seats,
+            date,
+            child,
+            description,
+            eventHostAddress
         );
-        addressEventMap[msg.sender].push(_event);
-        emit eventCreation(msg.sender, addressEventMap[msg.sender].length);
-    }
-    
-    function viewEvent(address owner, uint256 _id) public view returns (Event memory _event) {
-        return addressEventMap[owner][_id - 1];
-    }
-    
-    function incrementTicketCount(address owner, uint256 _id) public {
-        Event memory _event = addressEventMap[owner][_id - 1];
-        require(_event.seats > _event.occupiedSeats, "Event is full");
-        Event memory _tempEvent = Event(
-        _event.title,
-        _event.price,
-        _event.description,
-        _event.image,
-        _event.seats,
-        _event.occupiedSeats + 1,
-        _event.manualLink
-        );
-        addressEventMap[owner][_id - 1] = _tempEvent;
+        detailsMap[eventHostAddress].push(_tempEventData);
     }
     
     
