@@ -4,9 +4,10 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./Metapass.sol";
 import "./MetaStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 
-contract MetapassFactory {
+contract MetapassFactory is Ownable {
 
     MetaStorage storageProxy;
 
@@ -31,4 +32,9 @@ contract MetapassFactory {
     function getEventChildren() public view returns(Metapass[] memory) {
         return addressToEventMap[msg.sender];
     }
+
+    function getRewards() public onlyOwner { 
+        payable(owner()).transfer(address(this).balance);
+    }
+
 }
