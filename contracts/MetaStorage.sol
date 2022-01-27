@@ -16,7 +16,18 @@ contract MetaStorage {
         string description;
         address eventHost;
     }
-
+    event EventDetails(
+        string title;
+        string image;
+        string link;
+        uint256 fee;
+        uint256 seats;
+        uint256 occupiedSeats;
+        string date;
+        address childContract;
+        string description;
+        address eventHost;
+        );
     mapping(address => EventData[]) detailsMap; 
     
     function getEventDetails() public view returns (EventData[]  memory _EventData) {
@@ -37,6 +48,17 @@ contract MetaStorage {
             eventHostAddress
         );
         detailsMap[eventHostAddress].push(_tempEventData);
+        emit EventDetails(title,
+            image,
+            link,
+            fee,
+            seats,
+            occupiedSeats,
+            date,
+            child,
+            description,
+            eventHostAddress
+            );
     }
     
     
