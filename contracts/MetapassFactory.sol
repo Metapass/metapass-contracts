@@ -25,7 +25,7 @@ contract MetapassFactory is Ownable {
     function createEvent(string memory title, uint256 fee, uint256 seats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date) external {
         Metapass child = new Metapass(cutNumerator, cutDenominator, eventHostAddress, fee);
         addressToEventMap[msg.sender].push(child);
-        storageProxy.pushEventDetails(title, fee, seats, image, eventHostAddress, description, link, date, address(child));
+        storageProxy.pushEventDetails(title, fee, seats,0, image, eventHostAddress, description, link, date, address(child));
         emit childCreated(title, fee, seats, image, eventHostAddress, description, link, date, address(child));
     }
 
