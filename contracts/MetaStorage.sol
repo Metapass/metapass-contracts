@@ -10,6 +10,7 @@ contract MetaStorage {
         string link;
         uint256 fee;
         uint256 seats;
+        uint256 occupiedSeats;
         string date;
         address childContract;
         string description;
@@ -22,13 +23,14 @@ contract MetaStorage {
         return detailsMap[msg.sender];
     }
 
-    function pushEventDetails(string memory title, uint256 fee, uint256 seats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date, address child) public {
+    function pushEventDetails(string memory title, uint256 fee, uint256 seats,uint256 occupiedSeats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date, address child) public {
         EventData memory _tempEventData = EventData(
             title,
             image,
             link,
             fee,
             seats,
+            occupiedSeats,
             date,
             child,
             description,
