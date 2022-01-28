@@ -18,22 +18,24 @@ contract MetapassFactory is Ownable {
         storageProxy = MetaStorage(_storageProxy);
     }
 
-    event childCreated(string title, uint256 fee, uint256 seats, string image, address eventHost, string description, string link, string date, address childAddress);
-
     mapping(address => Metapass[]) public addressToEventMap;
 
     function createEvent(string memory title, uint256 fee, uint256 seats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date) external {
-        Metapass child = new Metapass(cutNumerator, cutDenominator, eventHostAddress, fee);
+        Metapass child = new Metapass(cutNumerator, cutDenominator, eventHostAddress, fee, address(storageProxy));
         addressToEventMap[msg.sender].push(child);
         storageProxy.pushEventDetails(title, fee, seats,0, image, eventHostAddress, description, link, date, address(child));
-        emit childCreated(title, fee, seats, image, eventHostAddress, description, link, date, address(child));
+    }
+
+    function updateRewards (uint256 num, uint256 den) public onlyOwner {
+        cutNumerator = num;
+        cutDenominator = den;
     }
 
     function getEventChildren() public view returns(Metapass[] memory) {
         return addressToEventMap[msg.sender];
     }
 
-    function getRewards() public onlyOwner { 
+    function getRewards() public payable onlyOwner { 
         payable(owner()).transfer(address(this).balance);
     }
 
