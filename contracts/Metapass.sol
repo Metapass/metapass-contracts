@@ -29,6 +29,7 @@ contract Metapass is ERC721URIStorage, Ownable {
     }
 
     function getTix (string memory tokenMetadata) payable public {
+        require(msg.value >= cost, "Sent value is less than minimum.");
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
         _tokenIdCounter.increment();

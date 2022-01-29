@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
 
-
-contract MetaStorage {
-    
-    // Structs 
+contract MetaStorage { 
 
     struct EventData {
         string title;
@@ -30,15 +27,18 @@ contract MetaStorage {
 
     event childCreated(string title, uint256 fee, uint256 seats, string image, address eventHost, string description, string link, string date, address childAddress);
 
-    event TicketBought (address childContract);
+    event TicketBought (address childContract, address buyer);
     
     event HostCreated (address _hostAddress, string name, string image, string bio, string socialLinks);
 
-    // Mappings
+    event CreateNewFeature (address featuredEventContract);
+
+    // Contract Storage
 
     mapping(address => EventData[]) detailsMap; 
-    mapping (address => HostProfile) profileMap;
-    
+    mapping(address => HostProfile) profileMap;
+    address[] featuredArray;
+    address[] admins = [0x28172273CC1E0395F3473EC6eD062B6fdFb15940, 0x0009f767298385f4Aa17EA1493562834657A2A5a];
 
     // Logic
 
@@ -65,7 +65,28 @@ contract MetaStorage {
     }
 
     function emitTicketBuy(address _childContract) public {
-        emit TicketBought(_childContract);
+        emit TicketBought(_childContract, msg.sender);
+    }
+
+    function isAdmin(address _address) public view returns (bool _isAdmin) {
+        
+        bool boolean = false;
+
+        for(uint i = 0; i< admins.length; i++) {
+            if(_address == admins[i]) {
+                boolean = true;
+            } else {
+                boolean = false;
+            }
+        }
+
+        return boolean;
+    }
+
+    function createFeaturedEvent(address _event) public {
+        require(isAdmin(msg.sender), "Unauthorized user");
+        featuredArray.push(_event);
+        emit CreateNewFeature(_event);
     }
 
     function addCreateHostProfile(string memory _name, string memory _image, string memory _bio, string memory _socialLinks) public {
