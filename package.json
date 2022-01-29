@@ -1,5 +1,8 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "mumbai": "npx hardhat run --network mumbai scripts/deploy-metastorage.js"
+  },
   "dependencies": {
     "@nomiclabs/hardhat-etherscan": "^2.1.8",
     "@openzeppelin/contracts": "^4.3.2",
