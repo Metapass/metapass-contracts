@@ -36,7 +36,7 @@ contract Metapass is ERC721URIStorage, Ownable {
         uint256 cut = msg.value * cutNumerator / cutDenominator;
         payable(eventHost).transfer(msg.value - cut);
         payable(owner()).transfer(cut);
-        storageProxy.emitTicketBuy(address(this));
+        storageProxy.emitTicketBuy(address(this), msg.sender);
     }
 
     function getLastTokenId() public view returns(uint256) {

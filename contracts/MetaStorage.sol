@@ -64,8 +64,8 @@ contract MetaStorage {
         emit childCreated(title, fee, seats, image, eventHostAddress, description, link, date, address(child));
     }
 
-    function emitTicketBuy(address _childContract) public {
-        emit TicketBought(_childContract, msg.sender);
+    function emitTicketBuy(address _childContract, address _sender) public {
+        emit TicketBought(_childContract, _sender);
     }
 
     function isAdmin(address _address) public view returns (bool _isAdmin) {
