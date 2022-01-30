@@ -39,7 +39,10 @@ contract MetaStorage {
     mapping(address => HostProfile) profileMap;
     address[] featuredArray;
     address[] admins = [0x28172273CC1E0395F3473EC6eD062B6fdFb15940, 0x0009f767298385f4Aa17EA1493562834657A2A5a];
-
+    modifier adminOnly {
+        require(msg.sender == admins[0] || msg.sender == admins[1]); //same as the if above
+        _; //tells that this modifier should be executed before the code
+    }
     // Logic
 
     function getEventDetails() public view returns (EventData[]  memory _EventData) {
@@ -68,7 +71,7 @@ contract MetaStorage {
         emit TicketBought(_childContract, _sender);
     }
 
-    function isAdmin(address _address) public view returns (bool _isAdmin) {
+  /*  function isAdmin(address _address) public view returns (bool _isAdmin) {
         
         bool boolean = false;
 
@@ -81,10 +84,10 @@ contract MetaStorage {
         }
 
         return boolean;
-    }
+    } */
 
-    function createFeaturedEvent(address _event) public {
-        require(isAdmin(msg.sender), "Unauthorized user");
+    function createFeaturedEvent(address _event) public adminOnly {
+        //require(isAdmin(msg.sender), "Unauthorized user");
         featuredArray.push(_event);
         emit CreateNewFeature(_event);
     }
