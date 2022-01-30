@@ -115,23 +115,7 @@ contract MetaStorage {
         emit TicketBought(_childContract, _sender);
     }
 
-    /*  function isAdmin(address _address) public view returns (bool _isAdmin) {
-        
-        bool boolean = false;
-
-        for(uint i = 0; i< admins.length; i++) {
-            if(_address == admins[i]) {
-                boolean = true;
-            } else {
-                boolean = false;
-            }
-        }
-
-        return boolean;
-    } */
-
     function createFeaturedEvent(address _event) public adminOnly {
-        //require(isAdmin(msg.sender), "Unauthorized user");
         featuredArray.push(_event);
         emit CreateNewFeature(_event);
     }
