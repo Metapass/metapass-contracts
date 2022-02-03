@@ -33,7 +33,9 @@ contract MetaStorage {
         string description,
         string link,
         string date,
-        address childAddress
+        address childAddress,
+        string category,
+        address[] buyers
     );
 
     event TicketBought(address childContract, address buyer);
@@ -76,13 +78,13 @@ contract MetaStorage {
         string memory title,
         uint256 fee,
         uint256 seats,
-        uint256 occupiedSeats,
         string memory image,
         address eventHostAddress,
         string memory description,
         string memory link,
         string memory date,
-        address child
+        address child,
+        string memory category
     ) public {
         EventData memory _tempEventData = EventData(
             title,
@@ -90,13 +92,15 @@ contract MetaStorage {
             link,
             fee,
             seats,
-            occupiedSeats,
+            0,
             date,
             child,
             description,
             eventHostAddress
         );
         detailsMap[eventHostAddress].push(_tempEventData);
+
+        address[] memory emptyArr;
 
         emit childCreated(
             title,
@@ -107,7 +111,9 @@ contract MetaStorage {
             description,
             link,
             date,
-            address(child)
+            address(child),
+            category,
+            emptyArr
         );
     }
 

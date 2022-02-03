@@ -20,10 +20,10 @@ contract MetapassFactory is Ownable {
 
     mapping(address => Metapass[]) public addressToEventMap;
 
-    function createEvent(string memory title, uint256 fee, uint256 seats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date) external {
+    function createEvent(string memory title, uint256 fee, uint256 seats, string memory image, address eventHostAddress, string memory description, string memory link, string memory date, string memory category) external {
         Metapass child = new Metapass(cutNumerator, cutDenominator, eventHostAddress, fee, address(storageProxy));
         addressToEventMap[msg.sender].push(child);
-        storageProxy.pushEventDetails(title, fee, seats,0, image, eventHostAddress, description, link, date, address(child));
+        storageProxy.pushEventDetails(title, fee, seats, image, eventHostAddress, description, link, date, address(child), category);
     }
 
     function updateRewards (uint256 num, uint256 den) public onlyOwner {
