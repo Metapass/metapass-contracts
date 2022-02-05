@@ -32,11 +32,11 @@ contract Metapass is ERC721URIStorage, Ownable {
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
         _tokenIdCounter.increment();
-        uint256 cut = msg.value * cutNumerator / cutDenominator;
-        if (cut >0 ) {
+        uint256 cut = (msg.value * cutNumerator) / (cutDenominator);
+        if (cut > 0 ) {
             payable(owner()).transfer(cut);
         }
-        payable(eventHost).transfer(msg.value - cut);
+        payable(eventHost).transfer(address(this).balance);
         storageProxy.emitTicketBuy(address(this), msg.sender);
     }
 
