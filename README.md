@@ -17,5 +17,5 @@ Mainnet Address
 ```
 Storage Mumbai address(beta)
 ```
-0x615aE0dCd8ae343A2f022363bDf823eec5Afede7
+0x9eBF87df7877fe3D06051ee53916Ce828cF261f6
 ```
