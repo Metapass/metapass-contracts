@@ -10,17 +10,23 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./MetaStorage.sol";
 
 contract Metapass is ERC721URIStorage, Ownable {
-        
     using Counters for Counters.Counter;
     uint256 public cutNumerator = 0;
     uint256 public cutDenominator = 100;
     Counters.Counter private _tokenIdCounter;
-        
     address public eventHost;
     uint256 cost;
     MetaStorage storageProxy;
 
-    constructor(uint256 _cutNum, uint256 _cutDen, address _owner, uint256 _cost, address _storageProxy) ERC721("MetapassTickets", "METAPASS") {
+    event Minted(uint256 tokenID);
+
+    constructor(
+        uint256 _cutNum,
+        uint256 _cutDen,
+        address _owner,
+        uint256 _cost,
+        address _storageProxy
+    ) ERC721("MetapassTickets", "METAPASS") {
         cutNumerator = _cutNum;
         cutDenominator = _cutDen;
         cost = _cost;
@@ -28,20 +34,20 @@ contract Metapass is ERC721URIStorage, Ownable {
         storageProxy = MetaStorage(_storageProxy);
     }
 
-    function getTix (string memory tokenMetadata) payable public {
+    function getTix(string memory tokenMetadata) public payable {
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
+        emit Minted(_tokenIdCounter.current());
         _tokenIdCounter.increment();
         uint256 cut = (msg.value * cutNumerator) / (cutDenominator);
-        if (cut > 0 ) {
+        if (cut > 0) {
             payable(owner()).transfer(cut);
         }
         payable(eventHost).transfer(address(this).balance);
         storageProxy.emitTicketBuy(address(this), msg.sender);
     }
 
-    function getLastTokenId() public view returns(uint256) {
+    function getLastTokenId() public view returns (uint256) {
         return _tokenIdCounter.current() - 1;
     }
-    
 }

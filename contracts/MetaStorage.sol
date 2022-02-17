@@ -54,14 +54,14 @@ contract MetaStorage {
 
     mapping(address => EventData[]) detailsMap;
     mapping(address => HostProfile) profileMap;
-    address[] featuredArray;
+    address[] public featuredArray;
     address[] admins = [
         0x28172273CC1E0395F3473EC6eD062B6fdFb15940,
         0x0009f767298385f4Aa17EA1493562834657A2A5a
     ];
     modifier adminOnly() {
-        require(msg.sender == admins[0] || msg.sender == admins[1]); //same as the if above
-        _; //tells that this modifier should be executed before the code
+        require(msg.sender == admins[0] || msg.sender == admins[1]);
+        _;
     }
 
     // Logic
