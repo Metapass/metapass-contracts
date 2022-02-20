@@ -29,8 +29,9 @@ contract MetapassFactory is Ownable {
         string memory description,
         string memory link,
         string memory date,
-        string memory category
-    ) external {
+        string memory category,
+        string memory venue
+    ) public {
         Metapass child = new Metapass(
             cutNumerator,
             cutDenominator,
@@ -40,30 +41,29 @@ contract MetapassFactory is Ownable {
         );
         emit childEvent(address(child));
         addressToEventMap[msg.sender].push(child);
-        storageProxy.pushEventDetails(
-            title,
-            fee,
-            seats,
-            image,
-            eventHostAddress,
-            description,
-            link,
-            date,
-            address(child),
-            category
-        );
-    }
-
-    function updateRewards(uint256 num, uint256 den) public onlyOwner {
-        cutNumerator = num;
-        cutDenominator = den;
+        {
+            storageProxy.pushEventDetails(
+                title,
+                fee,
+                seats,
+                image,
+                eventHostAddress,
+                description,
+                link,
+                date,
+                address(child),
+                category,
+                venue
+            );
+        }
     }
 
     function getEventChildren() public view returns (Metapass[] memory) {
         return addressToEventMap[msg.sender];
     }
 
-    function getRewards() public payable onlyOwner {
-        payable(owner()).transfer(address(this).balance);
+    function updateRewards(uint256 num, uint256 den) public onlyOwner {
+        cutNumerator = num;
+        cutDenominator = den;
     }
 }

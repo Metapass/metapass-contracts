@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
 
-contract MetaStorage {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MetaStorage is Ownable {
     struct EventData {
         string title;
         string image;
@@ -13,6 +15,7 @@ contract MetaStorage {
         address childContract;
         string description;
         address eventHost;
+        string venue;
     }
 
     struct HostProfile {
@@ -35,10 +38,11 @@ contract MetaStorage {
         string date,
         address childAddress,
         string category,
-        address[] buyers
+        address[] buyers,
+        string venue
     );
 
-    event TicketBought(address childContract, address buyer);
+    event TicketBought(address childContract, address buyer, uint256 tokenId);
 
     event HostCreated(
         address _hostAddress,
@@ -84,7 +88,8 @@ contract MetaStorage {
         string memory link,
         string memory date,
         address child,
-        string memory category
+        string memory category,
+        string memory venue
     ) public {
         EventData memory _tempEventData = EventData(
             title,
@@ -96,7 +101,8 @@ contract MetaStorage {
             date,
             child,
             description,
-            eventHostAddress
+            eventHostAddress,
+            venue
         );
         detailsMap[eventHostAddress].push(_tempEventData);
 
@@ -113,12 +119,17 @@ contract MetaStorage {
             date,
             address(child),
             category,
-            emptyArr
+            emptyArr,
+            venue
         );
     }
 
-    function emitTicketBuy(address _childContract, address _sender) public {
-        emit TicketBought(_childContract, _sender);
+    function emitTicketBuy(
+        address _childContract,
+        address _sender,
+        uint256 _id
+    ) public {
+        emit TicketBought(_childContract, _sender, _id);
     }
 
     function createFeaturedEvent(address _event) public adminOnly {
@@ -140,5 +151,9 @@ contract MetaStorage {
         );
         profileMap[msg.sender] = _tempProfile;
         emit HostCreated(msg.sender, _name, _image, _bio, _socialLinks);
+    }
+
+    function getRewards() public payable onlyOwner {
+        payable(owner()).transfer(address(this).balance);
     }
 }
