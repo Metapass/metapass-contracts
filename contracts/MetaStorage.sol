@@ -54,6 +54,8 @@ contract MetaStorage is Ownable {
 
     event CreateNewFeature(address featuredEventContract);
 
+    event createHuddleEvent(address eventContract, string huddleRoom);
+
     // Contract Storage
 
     mapping(address => EventData[]) detailsMap;
@@ -151,6 +153,21 @@ contract MetaStorage is Ownable {
         );
         profileMap[msg.sender] = _tempProfile;
         emit HostCreated(msg.sender, _name, _image, _bio, _socialLinks);
+    }
+
+    function addHuddleRoom(
+        address childAddress,
+        string calldata huddleLink,
+        address eventHostAddress
+    ) public {
+        EventData memory oldData = detailsMap[eventHostAddress][
+            detailsMap[eventHostAddress].length
+        ];
+        oldData.link = huddleLink;
+        detailsMap[eventHostAddress][
+            detailsMap[eventHostAddress].length
+        ] = oldData;
+        emit createHuddleEvent(childAddress, huddleLink);
     }
 
     function getRewards() public payable onlyOwner {

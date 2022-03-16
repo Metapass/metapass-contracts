@@ -5,7 +5,7 @@ async function main() {
     "MetapassFactory"
   );
   const factoryContract = await MetapassFactory.deploy(
-    "0x9eBF87df7877fe3D06051ee53916Ce828cF261f6"
+    "0x6a956a4C72203e111BA5B5d396bc0ad286AeBd9e"
   );
 
   await factoryContract.deployed();
