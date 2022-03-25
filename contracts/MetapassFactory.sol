@@ -47,7 +47,7 @@ contract MetapassFactory is Ownable, ChainlinkClient {
             string(
                 abi.encodePacked(
                     "https://metapass-huddle.herokuapp.com/api/getHuddle",
-                    child
+                    string(abi.encode(child))
                 )
             )
         );
