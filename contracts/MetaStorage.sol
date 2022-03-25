@@ -58,8 +58,8 @@ contract MetaStorage is Ownable {
 
     // Contract Storage
 
-    mapping(address => EventData[]) detailsMap;
-    mapping(address => HostProfile) profileMap;
+    mapping(address => EventData[]) public detailsMap;
+    mapping(address => HostProfile) public profileMap;
     address[] public featuredArray;
     address[] admins = [
         0x28172273CC1E0395F3473EC6eD062B6fdFb15940,
@@ -153,21 +153,6 @@ contract MetaStorage is Ownable {
         );
         profileMap[msg.sender] = _tempProfile;
         emit HostCreated(msg.sender, _name, _image, _bio, _socialLinks);
-    }
-
-    function addHuddleRoom(
-        address childAddress,
-        string calldata huddleLink,
-        address eventHostAddress
-    ) public {
-        EventData memory oldData = detailsMap[eventHostAddress][
-            detailsMap[eventHostAddress].length
-        ];
-        oldData.link = huddleLink;
-        detailsMap[eventHostAddress][
-            detailsMap[eventHostAddress].length
-        ] = oldData;
-        emit createHuddleEvent(childAddress, huddleLink);
     }
 
     function getRewards() public payable onlyOwner {
