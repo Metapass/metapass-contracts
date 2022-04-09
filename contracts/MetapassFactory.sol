@@ -4,61 +4,27 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./Metapass.sol";
 import "./MetaStorage.sol";
+import "./MetaHuddle.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 
-contract MetapassFactory is Ownable, ChainlinkClient {
+contract MetapassFactory is Ownable {
     MetaStorage storageProxy;
-    using Chainlink for Chainlink.Request;
-
-    // Chainlink Variables
-    uint256 public volume;
-
-    address private oracle;
-    bytes32 private jobId;
-    uint256 private chainlinkFee;
-    LinkTokenInterface public linkContract;
+    MetaHuddle huddleProxy;
 
     uint256 cutNumerator = 0;
     uint256 cutDenominator = 100;
 
     event childEvent(address child);
 
-    constructor(address _storageProxy, address _linkToken) {
-        linkContract = LinkTokenInterface(_linkToken);
+    constructor(address _storageProxy, address metaHuddleAddress) {
         storageProxy = MetaStorage(_storageProxy);
-        setChainlinkToken(_linkToken);
-        oracle = 0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8;
-        jobId = "d5270d1c311941d0b08bead21fea7747";
-        chainlinkFee = 0.1 * 10**18; // (Varies by network and job)
+        huddleProxy = MetaHuddle(metaHuddleAddress);
     }
 
     mapping(address => Metapass[]) public addressToEventMap;
 
-    function getHuddleLink(address child) public returns (bytes32 link) {
-        Chainlink.Request memory request = buildChainlinkRequest(
-            jobId,
-            address(this),
-            this.fulfill.selector
-        );
-        request.add(
-            "get",
-            string(
-                abi.encodePacked(
-                    "https://metapass-huddle.herokuapp.com/api/getHuddle",
-                    string(abi.encode(child))
-                )
-            )
-        );
-        return sendChainlinkRequestTo(oracle, request, chainlinkFee);
-    }
-
-    function fulfill(bytes32 _requestId, uint256 _volume)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        volume = _volume;
+    function createHuddleEvent(address child) public returns (bytes32 link) {
+        return huddleProxy.getHuddleLink(child);
     }
 
     function createEvent(
@@ -97,13 +63,6 @@ contract MetapassFactory is Ownable, ChainlinkClient {
                 venue
             );
         }
-    }
-
-    function withdrawLink() public onlyOwner {
-        linkContract.transfer(
-            msg.sender,
-            linkContract.balanceOf(address(this))
-        );
     }
 
     function getEventChildren() public view returns (Metapass[] memory) {
