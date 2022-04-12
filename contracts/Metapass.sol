@@ -36,6 +36,7 @@ contract Metapass is ERC721URIStorage, Ownable {
     }
 
     function getTix(string memory tokenMetadata) public payable {
+        require(balanceOf(msg.sender) == 0, "Already minted tickets");
         _safeMint(msg.sender, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
         emit Minted(_tokenIdCounter.current());
