@@ -23,8 +23,12 @@ contract MetapassFactory is Ownable {
 
     mapping(address => Metapass[]) public addressToEventMap;
 
-    function createHuddleEvent(address child) public returns (bytes32 link) {
-        return huddleProxy.getHuddleLink(child);
+    function createHuddleEvent(address child)
+        public
+        returns (string memory link)
+    {
+        huddleProxy.getHuddleLink(child);
+        return huddleProxy.returnLink();
     }
 
     function createEvent(
