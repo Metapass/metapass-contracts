@@ -10,9 +10,9 @@ contract MetaHuddle is ChainlinkClient {
     constructor(address _linkToken) {
         linkContract = LinkTokenInterface(_linkToken);
         setChainlinkToken(_linkToken);
-        oracle = 0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8;
-        jobId = "d5270d1c311941d0b08bead21fea7747";
-        chainlinkFee = 0.1 * 10**18;
+        oracle = 0x1D857F5EeCF0A47151f639251AA3Bf489f7304Af;
+        jobId = "1af51f84b26b46e29d5c06b699b6fdda";
+        chainlinkFee = 0;
     }
 
     modifier onlyOwner() {
@@ -26,7 +26,7 @@ contract MetaHuddle is ChainlinkClient {
         "https://metapass-huddle.herokuapp.com/api/getHuddle";
 
     // Chainlink Variables
-    uint256 public volume;
+    bytes32 public roomId;
     address private oracle;
     bytes32 private jobId;
     uint256 private chainlinkFee;
@@ -39,7 +39,13 @@ contract MetaHuddle is ChainlinkClient {
             this.fulfill.selector
         );
         request.add("get", makeString(toAsciiString(child)));
+        request.add("path", "roomId");
         return sendChainlinkRequestTo(oracle, request, chainlinkFee);
+    }
+
+    function showLink(address child) public returns (string memory) {
+        string memory link = bytes32ToString(getHuddleLink(child));
+        return link;
     }
 
     function makeString(string memory child)
@@ -50,11 +56,21 @@ contract MetaHuddle is ChainlinkClient {
         return string(abi.encodePacked(endpoint, "/", child));
     }
 
-    function fulfill(bytes32 _requestId, uint256 _volume)
+    function fulfill(bytes32 _requestId, bytes32 _volume)
         public
         recordChainlinkFulfillment(_requestId)
     {
-        volume = _volume;
+        roomId = _volume;
+    }
+
+    function returnLink() public view returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    "https://metapass.huddle01.com/room?roomId=",
+                    bytes32ToString(roomId)
+                )
+            );
     }
 
     function withdrawLink() public onlyOwner {
@@ -79,5 +95,21 @@ contract MetaHuddle is ChainlinkClient {
     function char(bytes1 b) public pure returns (bytes1 c) {
         if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
         else return bytes1(uint8(b) + 0x57);
+    }
+
+    function bytes32ToString(bytes32 _bytes32)
+        public
+        pure
+        returns (string memory)
+    {
+        uint8 i = 0;
+        while (i < 32 && _bytes32[i] != 0) {
+            i++;
+        }
+        bytes memory bytesArray = new bytes(i);
+        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+            bytesArray[i] = _bytes32[i];
+        }
+        return string(bytesArray);
     }
 }
