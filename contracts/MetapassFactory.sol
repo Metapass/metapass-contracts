@@ -4,32 +4,22 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./Metapass.sol";
 import "./MetaStorage.sol";
-import "./MetaHuddle.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MetapassFactory is Ownable {
     MetaStorage storageProxy;
-    MetaHuddle huddleProxy;
 
     uint256 cutNumerator = 0;
     uint256 cutDenominator = 100;
 
     event childEvent(address child);
+    event linkUpdate(address indexed childContract, string link);
 
-    constructor(address _storageProxy, address metaHuddleAddress) {
+    constructor(address _storageProxy) {
         storageProxy = MetaStorage(_storageProxy);
-        huddleProxy = MetaHuddle(metaHuddleAddress);
     }
 
     mapping(address => Metapass[]) public addressToEventMap;
-
-    function createHuddleEvent(address child)
-        public
-        returns (string memory link)
-    {
-        huddleProxy.getHuddleLink(child);
-        return huddleProxy.returnLink();
-    }
 
     function createEvent(
         string memory title,
@@ -48,7 +38,8 @@ contract MetapassFactory is Ownable {
             cutDenominator,
             eventHostAddress,
             fee,
-            address(storageProxy)
+            address(storageProxy),
+            0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b
         );
         emit childEvent(address(child));
         addressToEventMap[msg.sender].push(child);
@@ -76,5 +67,14 @@ contract MetapassFactory is Ownable {
     function updateRewards(uint256 num, uint256 den) public onlyOwner {
         cutNumerator = num;
         cutDenominator = den;
+    }
+
+    function updateLink(address _event, string calldata _link) public {
+        Metapass[] memory eventsArray = addressToEventMap[msg.sender];
+        require(
+            address(eventsArray[eventsArray.length]) == _event,
+            "Not the latest event"
+        );
+        emit linkUpdate(_event, _link);
     }
 }
