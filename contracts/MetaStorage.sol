@@ -54,7 +54,7 @@ contract MetaStorage is Ownable {
 
     event CreateNewFeature(address featuredEventContract);
 
-    event createHuddleEvent(address eventContract, string huddleRoom);
+    event linkUpdate(address indexed childContract, string link);
 
     // Contract Storage
 
@@ -132,6 +132,10 @@ contract MetaStorage is Ownable {
         uint256 _id
     ) public {
         emit TicketBought(_childContract, _sender, _id);
+    }
+
+    function emitLinkUpdate(address _event, string calldata _link) external {
+        emit linkUpdate(_event, _link);
     }
 
     function createFeaturedEvent(address _event) public adminOnly {

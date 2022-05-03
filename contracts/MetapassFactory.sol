@@ -14,7 +14,6 @@ contract MetapassFactory is Ownable {
     uint256 cutDenominator = 100;
 
     event childEvent(address child);
-    event linkUpdate(address indexed childContract, string link);
 
     constructor(address _storageProxy) {
         storageProxy = MetaStorage(_storageProxy);
@@ -80,6 +79,6 @@ contract MetapassFactory is Ownable {
             address(eventsArray[eventsArray.length]) == _event,
             "Not the latest event"
         );
-        emit linkUpdate(_event, _link);
+        storageProxy.emitLinkUpdate(_event, _link);
     }
 }
