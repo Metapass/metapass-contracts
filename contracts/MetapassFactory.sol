@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract MetapassFactory is Ownable {
     MetaStorage storageProxy;
 
+    address forwarderAuthority = 0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b;
     uint256 cutNumerator = 0;
     uint256 cutDenominator = 100;
 
@@ -20,6 +21,10 @@ contract MetapassFactory is Ownable {
     }
 
     mapping(address => Metapass[]) public addressToEventMap;
+
+    function updateForwarderAuthority(address forwarder) public onlyOwner {
+        forwarderAuthority = forwarder;
+    }
 
     function createEvent(
         string memory title,
@@ -39,7 +44,7 @@ contract MetapassFactory is Ownable {
             eventHostAddress,
             fee,
             address(storageProxy),
-            0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b
+            forwarderAuthority
         );
         emit childEvent(address(child));
         addressToEventMap[msg.sender].push(child);
