@@ -1,56 +1,165 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MetaStorage {
-
-    struct Event {
+contract MetaStorage is Ownable {
+    struct EventData {
         string title;
-        uint256 price;
-        string description;
         string image;
+        string link;
+        uint256 fee;
         uint256 seats;
         uint256 occupiedSeats;
-        string manualLink;
+        string date;
+        address childContract;
+        string description;
+        address eventHost;
+        string venue;
     }
-    
-    mapping(address => Event[]) addressEventMap;
-    
-    event eventCreation (address indexed _owner, uint256 indexed _id);
-    
-    function createEvent(string calldata _title, uint256 _price, string calldata _description, string calldata _image, uint256 _seats, uint256 _occupiedSeats, string memory _link) public{
-       
-       Event memory _event = Event(
-            _title,
-            _price,
-            _description,
+
+    struct HostProfile {
+        string name;
+        string profileImage;
+        string bio;
+        string socialLinks;
+    }
+
+    // Events
+
+    event childCreated(
+        string title,
+        uint256 fee,
+        uint256 seats,
+        string image,
+        address eventHost,
+        string description,
+        string link,
+        string date,
+        address childAddress,
+        string category,
+        address[] buyers,
+        string venue
+    );
+
+    event TicketBought(address childContract, address buyer, uint256 tokenId);
+
+    event HostCreated(
+        address _hostAddress,
+        string name,
+        string image,
+        string bio,
+        string socialLinks
+    );
+
+    event CreateNewFeature(address featuredEventContract);
+
+    event linkUpdate(address indexed childContract, string link);
+
+    // Contract Storage
+
+    mapping(address => EventData[]) public detailsMap;
+    mapping(address => HostProfile) public profileMap;
+    address[] public featuredArray;
+    address[] admins = [
+        0x28172273CC1E0395F3473EC6eD062B6fdFb15940,
+        0x0009f767298385f4Aa17EA1493562834657A2A5a
+    ];
+    modifier adminOnly() {
+        require(msg.sender == admins[0] || msg.sender == admins[1]);
+        _;
+    }
+
+    // Logic
+
+    function getEventDetails()
+        public
+        view
+        returns (EventData[] memory _EventData)
+    {
+        return detailsMap[msg.sender];
+    }
+
+    function pushEventDetails(
+        string memory title,
+        uint256 fee,
+        uint256 seats,
+        string memory image,
+        address eventHostAddress,
+        string memory description,
+        string memory link,
+        string memory date,
+        address child,
+        string memory category,
+        string memory venue
+    ) public {
+        EventData memory _tempEventData = EventData(
+            title,
+            image,
+            link,
+            fee,
+            seats,
+            0,
+            date,
+            child,
+            description,
+            eventHostAddress,
+            venue
+        );
+        detailsMap[eventHostAddress].push(_tempEventData);
+
+        address[] memory emptyArr;
+
+        emit childCreated(
+            title,
+            fee,
+            seats,
+            image,
+            eventHostAddress,
+            description,
+            link,
+            date,
+            address(child),
+            category,
+            emptyArr,
+            venue
+        );
+    }
+
+    function emitTicketBuy(
+        address _childContract,
+        address _sender,
+        uint256 _id
+    ) public {
+        emit TicketBought(_childContract, _sender, _id);
+    }
+
+    function emitLinkUpdate(address _event, string calldata _link) external {
+        emit linkUpdate(_event, _link);
+    }
+
+    function createFeaturedEvent(address _event) public adminOnly {
+        featuredArray.push(_event);
+        emit CreateNewFeature(_event);
+    }
+
+    function addCreateHostProfile(
+        string memory _name,
+        string memory _image,
+        string memory _bio,
+        string memory _socialLinks
+    ) public {
+        HostProfile memory _tempProfile = HostProfile(
+            _name,
             _image,
-            _seats,
-            _occupiedSeats,
-            _link
+            _bio,
+            _socialLinks
         );
-        addressEventMap[msg.sender].push(_event);
-        emit eventCreation(msg.sender, addressEventMap[msg.sender].length);
+        profileMap[msg.sender] = _tempProfile;
+        emit HostCreated(msg.sender, _name, _image, _bio, _socialLinks);
     }
-    
-    function viewEvent(address owner, uint256 _id) public view returns (Event memory _event) {
-        return addressEventMap[owner][_id - 1];
+
+    function getRewards() public payable onlyOwner {
+        payable(owner()).transfer(address(this).balance);
     }
-    
-    function incrementTicketCount(address owner, uint256 _id) public {
-        Event memory _event = addressEventMap[owner][_id - 1];
-        require(_event.seats > _event.occupiedSeats, "Event is full");
-        Event memory _tempEvent = Event(
-        _event.title,
-        _event.price,
-        _event.description,
-        _event.image,
-        _event.seats,
-        _event.occupiedSeats + 1,
-        _event.manualLink
-        );
-        addressEventMap[owner][_id - 1] = _tempEvent;
-    }
-    
-    
 }

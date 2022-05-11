@@ -6,7 +6,7 @@ async function main() {
 
   await metaStorageContract.deployed();
 
-  console.log("Contract deployed to:", metaStorageContract.address);
+  console.log("Storage deployed to: ", metaStorageContract.address);
 }
 
 main()

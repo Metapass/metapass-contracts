@@ -2,16 +2,12 @@
 
 This repo is for contracts of Metapass.
 
-Storage.sol isn't implemented yet but is in the roadmap for Metapass
+There are 2 Contracts in use and 1 peripherial contract.
 
-Mumbai Testnet address
+A. [MetaStorage.sol](https://polygonscan.com/address/0x6a956a4C72203e111BA5B5d396bc0ad286AeBd9e)
 
-```
-0x05ee02512Be6394C72743e6B131Ce5B39E875C67
-```
+Metastorage is responsible for all event emissions and writing to the graph. Any and all cuts pertaining to metapass would be stored in this contract.
 
-Mainnet Address
+B. [MetapassFactory.sol](https://polygonscan.com/address/0x3a9eC95cA60526139C353911C31FcD9ee124c19d)
 
-```
-0xD9b5a4Efe3f6e43C3b437B495dDB8668A3a3258d
-```
+Factory contract which generates instance of new event.
