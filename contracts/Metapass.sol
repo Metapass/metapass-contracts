@@ -46,7 +46,7 @@ contract Metapass is ERC721URIStorage, Ownable, BaseRelayRecipient {
         override(Context, BaseRelayRecipient)
         returns (address sender)
     {
-        sender = BaseRelayRecipient._msgSender();
+        return BaseRelayRecipient._msgSender();
     }
 
     function _msgData()
