@@ -54,7 +54,7 @@ contract MetaStorage is Ownable {
 
     event CreateNewFeature(address featuredEventContract);
 
-    event linkUpdate(address indexed childContract, string link);
+    event linkUpdate(address childContract, string link);
 
     // Contract Storage
 

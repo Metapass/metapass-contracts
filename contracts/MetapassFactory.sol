@@ -74,10 +74,10 @@ contract MetapassFactory is Ownable {
     }
 
     function updateLink(address _event, string calldata _link) public {
-        Metapass[] memory eventsArray = addressToEventMap[msg.sender];
+        Metapass MetapassEvent = Metapass(_event);
         require(
-            address(eventsArray[eventsArray.length]) == _event,
-            "Not the latest event"
+            address(MetapassEvent.owner()) == msg.sender,
+            "Not the Event Host"
         );
         storageProxy.emitLinkUpdate(_event, _link);
     }

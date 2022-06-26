@@ -6,11 +6,11 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@opengsn/contracts/src/BaseRelayRecipient.sol";
+import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
 
 import "./MetaStorage.sol";
 
-contract Metapass is ERC721URIStorage, Ownable, BaseRelayRecipient {
+contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     using Counters for Counters.Counter;
     uint256 public cutNumerator = 0;
     uint256 public cutDenominator = 100;
@@ -28,34 +28,31 @@ contract Metapass is ERC721URIStorage, Ownable, BaseRelayRecipient {
         uint256 _cost,
         address _storageProxy,
         address _forwarder
-    ) ERC721("MetapassTickets", "METAPASS") {
+    ) ERC721("MetapassTickets", "METAPASS") ERC2771Context(_forwarder) {
         cutNumerator = _cutNum;
         cutDenominator = _cutDen;
         cost = _cost;
         eventHost = _owner;
         storageProxy = MetaStorage(_storageProxy);
         transferOwnership(eventHost);
-        _setTrustedForwarder(_forwarder);
     }
-
-    string public override versionRecipient = "2.2.0";
 
     function _msgSender()
         internal
         view
-        override(Context, BaseRelayRecipient)
-        returns (address sender)
+        override(Context, ERC2771Context)
+        returns (address)
     {
-        return BaseRelayRecipient._msgSender();
+        return ERC2771Context._msgSender();
     }
 
     function _msgData()
         internal
         view
-        override(Context, BaseRelayRecipient)
-        returns (bytes memory)
+        override(Context, ERC2771Context)
+        returns (bytes calldata)
     {
-        return BaseRelayRecipient._msgData();
+        return ERC2771Context._msgData();
     }
 
     function _beforeTokenTransfer(
