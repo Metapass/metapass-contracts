@@ -4,19 +4,24 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./Metapass.sol";
 import "./MetaStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MetapassFactory is Ownable {
+contract MetapassFactory {
     MetaStorage storageProxy;
-
+    address owner;
     address forwarderAuthority = 0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b;
     uint256 cutNumerator = 0;
     uint256 cutDenominator = 100;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
 
     event childEvent(address child);
 
     constructor(address _storageProxy) {
         storageProxy = MetaStorage(_storageProxy);
+        owner = msg.sender;
     }
 
     mapping(address => Metapass[]) public addressToEventMap;
@@ -35,7 +40,8 @@ contract MetapassFactory is Ownable {
         string memory link,
         string memory date,
         string memory category,
-        string memory venue
+        string memory venue,
+        address customToken
     ) public {
         Metapass child = new Metapass(
             cutNumerator,
@@ -43,7 +49,8 @@ contract MetapassFactory is Ownable {
             eventHostAddress,
             fee,
             address(storageProxy),
-            forwarderAuthority
+            forwarderAuthority,
+            customToken
         );
         emit childEvent(address(child));
         addressToEventMap[msg.sender].push(child);

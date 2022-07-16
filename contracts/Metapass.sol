@@ -3,6 +3,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -18,6 +19,8 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     address public eventHost;
     uint256 cost;
     MetaStorage storageProxy;
+    IERC20 customToken;
+    bool isCustomToken;
 
     event Minted(uint256 tokenID);
 
@@ -27,7 +30,8 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
         address _owner,
         uint256 _cost,
         address _storageProxy,
-        address _forwarder
+        address _forwarder,
+        address _customToken
     ) ERC721("MetapassTickets", "METAPASS") ERC2771Context(_forwarder) {
         cutNumerator = _cutNum;
         cutDenominator = _cutDen;
@@ -35,6 +39,12 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
         eventHost = _owner;
         storageProxy = MetaStorage(_storageProxy);
         transferOwnership(eventHost);
+        if (_customToken == address(0)) {
+            isCustomToken = false;
+        } else {
+            isCustomToken = true;
+            customToken = IERC20(_customToken);
+        }
     }
 
     function _msgSender()
@@ -68,6 +78,7 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     }
 
     function getTix(string memory tokenMetadata) public payable {
+        require(!isCustomToken, "Custom Token, Use getTixWithToken method");
         require(balanceOf(_msgSender()) == 0, "Already minted tickets");
         _safeMint(_msgSender(), _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
@@ -85,17 +96,39 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
         _tokenIdCounter.increment();
     }
 
-    function bulkAirdrop(address[] users, string[] metadata)
+    function getTixWithToken(string calldata tokenMetadata) external {
+        require(isCustomToken, "Native Token, use getTix method");
+        require(balanceOf(_msgSender()) == 0, "Already minted tickets");
+        uint256 allowance = customToken.allowance(_msgSender(), address(this));
+        require(allowance > cost, "Not enough allowance");
+        _safeMint(_msgSender(), _tokenIdCounter.current());
+        _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
+        uint256 cut = (cost * cutNumerator) / (cutDenominator);
+        if (cut > 0) {
+            bool s = customToken.transfer(address(storageProxy), cut);
+            require(s);
+        }
+        customToken.transfer(address(owner()), cost - cut);
+        storageProxy.emitTicketBuy(
+            address(this),
+            _msgSender(),
+            _tokenIdCounter.current()
+        );
+        _tokenIdCounter.increment();
+    }
+
+    function bulkAirdrop(address[] calldata users, string[] calldata metadata)
         external
         onlyOwner
     {
         require(users.length == metadata.length, "Metadata Length Mismatch");
-        for (uint256 i = 0; i < users.length; i++) {
-            _safeMint(address[i], _tokenIdCounter.current());
+        uint256 i;
+        for (i = 0; i < users.length; i++) {
+            _safeMint(users[i], _tokenIdCounter.current());
             _setTokenURI(_tokenIdCounter.current(), metadata[i]);
             storageProxy.emitTicketBuy(
                 address(this),
-                address[i],
+                users[i],
                 _tokenIdCounter.current()
             );
             _tokenIdCounter.increment();
