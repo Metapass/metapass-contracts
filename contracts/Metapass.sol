@@ -84,4 +84,21 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
         );
         _tokenIdCounter.increment();
     }
+
+    function bulkAirdrop(address[] users, string[] metadata)
+        external
+        onlyOwner
+    {
+        require(users.length == metadata.length, "Metadata Length Mismatch");
+        for (uint256 i = 0; i < users.length; i++) {
+            _safeMint(address[i], _tokenIdCounter.current());
+            _setTokenURI(_tokenIdCounter.current(), metadata[i]);
+            storageProxy.emitTicketBuy(
+                address(this),
+                address[i],
+                _tokenIdCounter.current()
+            );
+            _tokenIdCounter.increment();
+        }
+    }
 }
