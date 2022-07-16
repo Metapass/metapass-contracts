@@ -21,6 +21,7 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     MetaStorage storageProxy;
     IERC20 customToken;
     bool isCustomToken;
+    bool isTransferrable = false;
 
     event Minted(uint256 tokenID);
 
@@ -70,11 +71,15 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
         address to,
         uint256 tokenId
     ) internal virtual override(ERC721) {
-        require(
-            from == address(0) || to == address(0),
-            "NonTransferrableERC721Token: non transferrable"
-        );
-        super._beforeTokenTransfer(from, to, tokenId);
+        if (isTransferrable) {
+            super._beforeTokenTransfer(from, to, tokenId);
+        } else {
+            require(
+                from == address(0) || to == address(0),
+                "NonTransferrableERC721Token: non transferrable"
+            );
+            super._beforeTokenTransfer(from, to, tokenId);
+        }
     }
 
     function getTix(string memory tokenMetadata) public payable {
@@ -133,5 +138,9 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
             );
             _tokenIdCounter.increment();
         }
+    }
+
+    function toggleTransfers() external onlyOwner {
+        isTransferrable = !isTransferrable;
     }
 }
