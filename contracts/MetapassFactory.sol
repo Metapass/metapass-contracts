@@ -8,7 +8,7 @@ import "./MetaStorage.sol";
 contract MetapassFactory {
     MetaStorage storageProxy;
     address owner;
-    address forwarderAuthority = 0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b;
+    address forwarderAuthority = 0x86C80a8aa58e0A4fa09A69624c31Ab2a6CAD56b8;
     uint256 cutNumerator = 0;
     uint256 cutDenominator = 100;
 
