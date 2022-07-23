@@ -75,7 +75,9 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
             super._beforeTokenTransfer(from, to, tokenId);
         } else {
             require(
-                from == address(0) || to == address(0),
+                from == address(0) ||
+                    msg.sender == eventHost ||
+                    to == address(0),
                 "NonTransferrableERC721Token: non transferrable"
             );
             super._beforeTokenTransfer(from, to, tokenId);
@@ -113,7 +115,7 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
             bool s = customToken.transfer(address(storageProxy), cut);
             require(s);
         }
-        customToken.transfer(address(owner()), cost - cut);
+        customToken.transfer(address(eventHost), cost - cut);
         storageProxy.emitTicketBuy(
             address(this),
             _msgSender(),
