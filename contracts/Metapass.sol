@@ -3,7 +3,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./utils/IERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -19,7 +19,7 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     address public eventHost;
     uint256 cost;
     MetaStorage storageProxy;
-    IERC20 customToken;
+    IERC20Permit customToken;
     bool isCustomToken;
     bool isTransferrable = false;
 
@@ -44,7 +44,7 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
             isCustomToken = false;
         } else {
             isCustomToken = true;
-            customToken = IERC20(_customToken);
+            customToken = IERC20Permit(_customToken);
         }
     }
 
@@ -103,17 +103,30 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
         _tokenIdCounter.increment();
     }
 
-    function getTixWithToken(string calldata tokenMetadata) external {
+    function getTixWithToken(
+        string calldata tokenMetadata,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
         require(isCustomToken, "Native Token, use getTix method");
         require(balanceOf(_msgSender()) == 0, "Already minted tickets");
-        uint256 allowance = customToken.allowance(_msgSender(), address(this));
-        require(allowance > cost, "Not enough allowance");
+        customToken.permit(
+            _msgSender(),
+            address(this),
+            cost,
+            deadline,
+            v,
+            r,
+            s
+        );
         _safeMint(_msgSender(), _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
         uint256 cut = (cost * cutNumerator) / (cutDenominator);
         if (cut > 0) {
-            bool s = customToken.transfer(address(storageProxy), cut);
-            require(s);
+            bool sent = customToken.transfer(address(storageProxy), cut);
+            require(sent);
         }
         customToken.transfer(address(eventHost), cost - cut);
         storageProxy.emitTicketBuy(
