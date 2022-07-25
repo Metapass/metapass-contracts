@@ -19,8 +19,8 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     address public eventHost;
     uint256 cost;
     MetaStorage storageProxy;
-    IERC20Permit customToken;
-    bool isCustomToken;
+    IERC20Permit public customToken;
+    bool public isCustomToken;
     bool isTransferrable = false;
 
     event Minted(uint256 tokenID);
