@@ -2,8 +2,9 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Proxiable.sol";
 
-contract MetaStorage is Ownable {
+contract MetaStorage is Ownable, Proxiable {
     struct EventData {
         string title;
         string image;
@@ -71,6 +72,10 @@ contract MetaStorage is Ownable {
     }
 
     // Logic
+
+    function updateCode(address implementation) external onlyOwner {
+        updateCodeAddress(implementation);
+    }
 
     function getEventDetails()
         public

@@ -13,10 +13,10 @@ import "./MetaStorage.sol";
 
 contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     using Counters for Counters.Counter;
-    uint256 public cutNumerator = 0;
-    uint256 public cutDenominator = 100;
+    uint256 cutNumerator = 0;
+    uint256 cutDenominator = 100;
     Counters.Counter private _tokenIdCounter;
-    address public eventHost;
+    address eventHost;
     uint256 cost;
     MetaStorage storageProxy;
     IERC20Permit public customToken;
