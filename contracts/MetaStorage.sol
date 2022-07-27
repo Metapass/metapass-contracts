@@ -73,6 +73,8 @@ contract MetaStorage is Ownable, Proxiable {
 
     // Logic
 
+    function initialize() external {}
+
     function updateCode(address implementation) external onlyOwner {
         updateCodeAddress(implementation);
     }
