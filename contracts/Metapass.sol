@@ -85,7 +85,7 @@ contract Metapass is ERC721URIStorage, ERC2771Context, Ownable {
     }
 
     function getTix(string memory tokenMetadata) public payable {
-        require(!isCustomToken, "Custom Token, Use getTixWithToken method");
+        require(!isCustomToken, "Custom Token");
         require(balanceOf(_msgSender()) == 0, "Already minted tickets");
         _safeMint(_msgSender(), _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), tokenMetadata);
