@@ -6,19 +6,22 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract MetaSupporters is ERC721URIStorage, Ownable  {
-
-    constructor() ERC721("Metapass Early Supporters", "MES") {}
+contract ZoAfterParty is ERC721URIStorage, Ownable {
+    constructor() ERC721("ZoAfterParty", "ZOZO") {}
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
-    function mintNFT(address _address, string memory _tokenData) onlyOwner public {
+    function mintNFT(address _address, string memory _tokenData)
+        public
+        onlyOwner
+    {
         _safeMint(_address, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), _tokenData);
         _tokenIdCounter.increment();
     }
-    function getLastId() public view returns(uint256) {
+
+    function getLastId() public view returns (uint256) {
         return _tokenIdCounter.current() - 1;
     }
 }

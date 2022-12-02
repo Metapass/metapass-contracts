@@ -1,11 +1,11 @@
 const hre = require("hardhat");
 const address = require("../airdrop.json");
 const axios = require("axios");
-const { create, urlSource } = require("ipfs-http-client");
+const { create } = require("ipfs-http-client");
 
 async function main() {
-  const MetaSupporters = await hre.ethers.getContractFactory("MetaSupporters");
-  const metaSupportersContract = await MetaSupporters.deploy();
+  const ZoAfterParty = await hre.ethers.getContractFactory("ZoAfterParty");
+  const zoAfterPartyContract = await ZoAfterParty.deploy();
 
   const ipfs = create({
     host: "ipfs.infura.io",
@@ -13,24 +13,21 @@ async function main() {
     protocol: "https",
   });
 
-  await metaSupportersContract.deployed();
+  await zoAfterPartyContract.deployed();
 
-  console.log("Contract deployed to:", metaSupportersContract.address);
+  console.log("Contract deployed to:", zoAfterPartyContract.address);
 
   for (let i = 0; i < address.length; i++) {
-    let image = await axios.get(
-      `http://radiant-caverns-43873.herokuapp.com/voter/person=${
-        address[i].userName
-      }&ticket_no=${i + 1}`
-    );
+    // let image =
+    //   "https://ipfs.io/ipfs/QmdRu4N8EQWnhPR5R3PmVi8dQTiqmYv7P1SR5SxZErjfZm";
 
-    const file = await ipfs.add(urlSource(image.data[0]));
+    // const file = await ipfs.add(image);
 
-    let cid = file.cid.toString();
+    let cid = "QmdRu4N8EQWnhPR5R3PmVi8dQTiqmYv7P1SR5SxZErjfZm";
 
     let metadata = {
-      name: "Early supporter NFT for " + address[i].userName,
-      description: `${address[i].userName}, thank you for being a early supporter for Metapass. Here is a token of our appreciation.`,
+      name: "ZoWorld After Party Ticket",
+      description: `Use verify.metapasshq.xyz to check in with this NFT at the event.`,
       image: `https://ipfs.io/ipfs/${cid}`,
       properties: {
         "Ticket Number": i + 1,
@@ -38,8 +35,8 @@ async function main() {
     };
 
     try {
-      let txn = await metaSupportersContract.mintNFT(
-        address[i].walletAddress,
+      let txn = await zoAfterPartyContract.mintNFT(
+        address[i].address,
         JSON.stringify(metadata)
       );
 
