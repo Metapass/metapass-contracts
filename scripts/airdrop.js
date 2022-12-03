@@ -4,8 +4,12 @@ const axios = require("axios");
 const { create } = require("ipfs-http-client");
 
 async function main() {
-  const ZoAfterParty = await hre.ethers.getContractFactory("ZoAfterParty");
-  const zoAfterPartyContract = await ZoAfterParty.deploy();
+  const zoAfterPartyContract = await hre.ethers.getContractAt(
+    "ZoAfterParty",
+    "0xAA6B95fA95a807d31e2E26d194DA5C2F9d516C62"
+  );
+  // const zoAfterPartyContract = await ZoAfterParty.deploy();
+  console.log("ZoAfterParty deployed to:", zoAfterPartyContract.address);
 
   const ipfs = create({
     host: "ipfs.infura.io",
@@ -13,7 +17,7 @@ async function main() {
     protocol: "https",
   });
 
-  await zoAfterPartyContract.deployed();
+  // await zoAfterPartyContract.deployed();
 
   console.log("Contract deployed to:", zoAfterPartyContract.address);
 
@@ -39,12 +43,15 @@ async function main() {
         address[i].address,
         JSON.stringify(metadata)
       );
-
+      // console.log(txn);
       await txn.wait();
+      // console.log(res);
+      console.log("success", address[i].address);
     } catch (e) {
       console.log(e);
+      console.log("failed", address[i].address);
     } finally {
-      console.log(address[i].walletAddress);
+      // console.log(address[i].address);
     }
   }
 }
