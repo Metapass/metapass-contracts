@@ -11,7 +11,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "0.8.13",
   networks: {
     mumbai: {
       url: process.env.ALCHEMY_URL,
@@ -22,7 +22,7 @@ module.exports = {
       accounts: [process.env.MAINNET_KEY],
     }
   },
-  etherscan:{
+  etherscan: {
     apiKey: process.env.ETHERSCAN_KEY
   }
 };
